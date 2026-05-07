@@ -1,0 +1,64 @@
+services:
+  spark:
+    build: .
+    container_name: spark
+    ports:
+      - "4040:4040"  
+      - "8080:8080"  
+    volumes:
+      - ./spark/jobs:/opt/app
+      - ./data:/opt/data
+    environment:
+      - SPARK_LOCAL_IP=spark
+    networks:
+      - spark-net
+
+  postgres:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: retail_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./spark/init_postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - spark-net
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:22.12
+    container_name: clickhouse_db
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: reports_db
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./clickhouse-config:/etc/clickhouse-server/config.d
+    networks:
+      - spark-net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - spark-net
+
+volumes:
+  postgres_data:
+  clickhouse_data:
+
+networks:
+  spark-net:
+    driver: bridge
