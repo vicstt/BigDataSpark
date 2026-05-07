@@ -158,8 +158,7 @@ def main():
         write_to_postgres(fact_sales, "fact_sales")
         logger.info(f"  Создано {fact_sales.count()} записей")
         
-        logger.info("=" * 50)
-        logger.info("✅ Star schema успешно создана!")
+        logger.info("Star schema успешно создана!")
         
     except Exception as e:
         logger.error(f"Ошибка: {str(e)}")
