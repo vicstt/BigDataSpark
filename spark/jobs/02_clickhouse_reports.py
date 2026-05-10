@@ -15,7 +15,6 @@ def create_spark_session():
         .getOrCreate()
 
 def write_to_clickhouse(df, table_name):
-    """Запись DataFrame в ClickHouse через JDBC"""
     try:
         df.write \
             .format("jdbc") \
@@ -49,7 +48,6 @@ def main():
     }
     
     try:
-        logger.info("=" * 50)
         logger.info("Загрузка данных из PostgreSQL...")
         
         fact = spark.read.format("jdbc").options(**PG_OPTIONS).option("dbtable", "fact_sales").load()
