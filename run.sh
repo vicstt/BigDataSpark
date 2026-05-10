@@ -18,7 +18,8 @@ fi
 echo -e "${GREEN}CSV файлы найдены${NC}"
 
 echo -e "\n${YELLOW}[3/6] Остановка старых контейнеров...${NC}"
-docker-compose down -v 2>/dev/null || true
+docker-compose down --timeout 10 2>/dev/null || true
+docker rm -f spark postgres_db clickhouse_db 2>/dev/null || true
 
 echo -e "\n${YELLOW}[4/6] Запуск Docker контейнеров...${NC}"
 docker-compose up -d
@@ -140,17 +141,17 @@ docker exec spark /opt/spark/bin/spark-submit \
     --master local[*] \
     --driver-memory 2g \
     --executor-memory 2g \
-    --jars /opt/spark/jars/postgresql-42.7.3.jar \
+    --jars /opt/spark/jars/postgresql-42.7.3.jar,/opt/spark/jars/clickhouse-jdbc-0.4.6-all.jar \
     /opt/app/02_clickhouse_reports.py
 
 echo -e "\n${GREEN}Проверка отчетов в ClickHouse:${NC}"
 docker exec clickhouse_db clickhouse-client --query "
 SELECT 
-    table,
+    name as table_name,
     total_rows
 FROM system.tables
 WHERE database = 'reports_db'
-ORDER BY table
+ORDER BY name
 FORMAT PrettyCompact
 "
 

@@ -12,8 +12,12 @@ RUN mkdir -p /opt/spark/jars
 RUN wget -q -O /opt/spark/jars/postgresql-42.7.3.jar \
     https://jdbc.postgresql.org/download/postgresql-42.7.3.jar && \
     wget -q -O /opt/spark/jars/clickhouse-jdbc-0.4.6-all.jar \
-    https://repo1.maven.org/maven2/com/clickhouse/clickhouse-jdbc/0.4.6/clickhouse-jdbc-0.4.6-all.jar
+    https://repo1.maven.org/maven2/com/clickhouse/clickhouse-jdbc/0.4.6/clickhouse-jdbc-0.4.6-all.jar && \
+    chmod 644 /opt/spark/jars/*.jar
 
+RUN mkdir -p /opt/app
 WORKDIR /opt/app
+
+RUN ls -la /opt/spark/jars/
 
 CMD ["tail", "-f", "/dev/null"]
